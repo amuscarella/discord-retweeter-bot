@@ -41,7 +41,7 @@ async def on_message(message):
 
 	#Test code to ensure bot works
 	if message.content.startswith(".hello"):
-		await message.channel.send("Hello!")
+		await message.channel.send(TEST_TWEET_LINK)
 #######################################################################
 # Run App
 #######################################################################
