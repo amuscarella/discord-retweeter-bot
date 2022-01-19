@@ -1,22 +1,21 @@
+#!/usr/bin/python
 #######################################################################
 # Discord Retweeter
-# Authors: Antonio Muscarella (Github: amuscarella)
+# A Discord bot for posting tweets from a specific Twitter account to a specific Discord channel.
+# Authors: Christopher J. Clayton II (Github: ChristopherClayton) &
+#          Antonio D. Muscarella (Github: amuscarella) 
 #######################################################################
-import asyncio
+import asyncio, requests, json
 import discord
 from discord.ext import commands
 from discord.ext.commands import bot
-import threading
-import requests
-import json
-import time
 #Local imports
 from config import *
 #######################################################################
 # Intents Declaration & Client Initialization
 #######################################################################
 #read token
-TOKEN = open(TOKEN_FNAME, 'r').readline()
+DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
 TWITTER_TOKEN = open(TWITTER_TOKEN_FNAME, 'r').readline()
 
 #declare discord intents & initialize client
@@ -168,4 +167,4 @@ def twitter_stream():
 # Run App
 #######################################################################
 client.loop.create_task(my_background_task())
-client.run(TOKEN)
+client.run(DISCORD_TOKEN)
