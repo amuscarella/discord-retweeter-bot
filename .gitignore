@@ -130,3 +130,4 @@ dmypy.json
 
 # token for discord bot
 token.txt
+twitter_token.txt
