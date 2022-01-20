@@ -12,7 +12,7 @@ from discord.ext.commands import bot
 #Local imports
 from config import *
 #######################################################################
-# Intents Declaration & Client Initialization
+# Discord Intents Declaration & Client Initialization
 #######################################################################
 #read token
 DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
@@ -26,19 +26,16 @@ intents.guilds = True
 
 client = discord.Client(intents = intents)
 #######################################################################
-# Twitter Auth
-#######################################################################
-bearer_token = TWITTER_TOKEN
-
-search_url = "https://api.twitter.com/2/tweets/search/recent"
-
-query_params = {'query': 'from:bstategames -is:retweet','tweet.fields': 'author_id', 'max_results': 10}
-#######################################################################
 # Twitter Functions
 #######################################################################
 def bearer_oauth(r):
-	r.headers["Authorization"] = f"Bearer {bearer_token}"
-	return r
+    '''
+    Updates the bearer oauth with the token authorization
+    :param r: the bearer oauth
+    :return: the bearer oauth with the updated token
+    '''
+    r.headers["Authorization"] = f"Bearer {TWITTER_TOKEN}"
+    return r
 
 def connect_to_endpoint(url, params):
     response = requests.get(url, auth=bearer_oauth, params=params)
@@ -48,16 +45,27 @@ def connect_to_endpoint(url, params):
     return response.text
 
 def parse_json_response(response_as_json):
+    '''
+    Parses json response from the twitter stream.
+    :param response_as_json: the response from the twitter stream as a json object
+    :return: the id of the retrieved tweet
+    '''
+    #error handling - stream is not connected for some reason
+    if "data" not in response_as_json.keys():
+        print("ran into stream error")
+        print(response_as_json)
+        return(0)
     print(response_as_json)
     data = response_as_json["data"]
     print(data)
-    id = data["id"]
-    return id
+    tweet_id = data["id"]
+    return tweet_id
 
 def get_rules():
-    response = requests.get(
-        "https://api.twitter.com/2/tweets/search/stream/rules", auth=bearer_oauth
-    )
+    '''
+    :return: the json dump of the response from the twitter stream
+    '''
+    response = requests.get(TWITTER_STREAM_URL, auth=bearer_oauth)
     if response.status_code != 200:
         raise Exception(
             "Cannot get rules (HTTP {}): {}".format(response.status_code, response.text)
@@ -65,36 +73,33 @@ def get_rules():
     print(json.dumps(response.json()))
     return response.json()
 
-
 def delete_all_rules(rules):
+    '''
+    Deletes rules for twitter stream monitoring
+    :param rules: the specified rules for the twitter stream
+    :return: None
+    '''
     if rules is None or "data" not in rules:
         return None
 
     ids = list(map(lambda rule: rule["id"], rules["data"]))
     payload = {"delete": {"ids": ids}}
-    response = requests.post(
-        "https://api.twitter.com/2/tweets/search/stream/rules",
-        auth=bearer_oauth,
-        json=payload
-    )
+    response = requests.post(TWITTER_STREAM_URL, auth=bearer_oauth, json=payload)
     if response.status_code != 200:
         raise Exception(
-            "Cannot delete rules (HTTP {}): {}".format(
-                response.status_code, response.text
-            )
+            "Cannot delete rules (HTTP {}): {}".format(response.status_code, response.text)
         )
     print(json.dumps(response.json()))
 
 
 def set_rules(delete):
+    '''
+    Sets rules for twitter stream to follow when monitoring
+    :param delete: ??? TODO: I have no idea what the purpose of this is but I just left it
+    '''
     # You can adjust the rules if needed
-    sample_rules = [{"value": "from:bstategames"}]
-    payload = {"add": sample_rules}
-    response = requests.post(
-        "https://api.twitter.com/2/tweets/search/stream/rules",
-        auth=bearer_oauth,
-        json=payload,
-    )
+    payload = {"add": TWITTER_STREAM_RULES}
+    response = requests.post(TWITTER_STREAM_URL, auth=bearer_oauth, json=payload)
     if response.status_code != 201:
         raise Exception(
             "Cannot add rules (HTTP {}): {}".format(response.status_code, response.text)
@@ -102,10 +107,13 @@ def set_rules(delete):
     print(json.dumps(response.json()))
 
 
-def get_stream(set):
-    response = requests.get(
-        "https://api.twitter.com/2/tweets/search/stream", auth=bearer_oauth, stream=True,
-    )
+def get_stream(ruleset):
+    '''
+    Fetches the URL string of a tweet posted to a twitter stream.
+    :param ruleset: the set of rules for the twitter stream to follow
+    :return: the string of the URL for the tweet posted to the tream
+    '''
+    response = requests.get(TWITTER_STREAM_URL, auth=bearer_oauth, stream=True)
     print(response.status_code)
     if response.status_code != 200:
         raise Exception(
@@ -117,9 +125,14 @@ def get_stream(set):
         if response_line:
             json_response = json.loads(response_line)
             tweet_id = parse_json_response(json_response)
-            link = "https://twitter.com/bstategames/status/" + tweet_id
+            link = TWITTER_ACCOUNT_URL_PREFIX + tweet_id
             return(link)
 
+def initialize_twitter_stream():
+    rules = get_rules()
+    delete = delete_all_rules(rules)
+    ruleset = set_rules(delete)
+    return(ruleset)
 #######################################################################
 # App Functions
 #######################################################################
@@ -131,40 +144,22 @@ async def on_ready():
 	"""
 	print("Logged in as {0.user}".format(client))
 
-# @client.event
-# async def on_message(message):
-# 	"""
-# 	Reads message for key word to prompt bot to respond
-# 	:param message: the text of the most recent message
-# 	"""
-# 	#Do nothing if message came from this bot or message was not posted in a channel the bot should respond to
-# 	if message.author == client.user or message.channel.id not in CHANNEL_IDS_TO_MONITOR:
-# 		return
-
-# 	#Test code to ensure bot works
-# 	if message.content.startswith(".hello"):
-# 		json = connect_to_endpoint(search_url, query_params)
-# 		tweet_id = parse_json_response(json)
-# 		link = "https://twitter.com/bstategames/status/" + tweet_id
-# 		await message.channel.send(link)
-
-async def my_background_task():
+async def post_twitter_link():
+    """
+    Waits for a new tweet to be posted from the account followed on the twitter stream,
+    then posts link to desired discord channel. Waits 60 seconds to refresh.
+    :return: None
+    """
     await client.wait_until_ready()
-    channel = client.get_channel(id=930511442006921257) # replace with channel_id
+    channel = client.get_channel(id=TARGET_CHANNEL)
+    ruleset = initialize_twitter_stream()
     while not client.is_closed():
-        link = twitter_stream()
+        link = get_stream(ruleset)
         if (link):
             await channel.send(link)
         await asyncio.sleep(60) # task runs every 60 seconds
-
-def twitter_stream():
-    rules = get_rules()
-    delete = delete_all_rules(rules)
-    set = set_rules(delete)
-    link = get_stream(set)
-    return(link)
 #######################################################################
 # Run App
 #######################################################################
-client.loop.create_task(my_background_task())
+client.loop.create_task(post_twitter_link())
 client.run(DISCORD_TOKEN)
