@@ -51,10 +51,10 @@ def parse_json_response(response_as_json):
     :return: the id of the retrieved tweet
     '''
     #error handling - stream is not connected for some reason
-    if "data" not in response_as_json.keys():
-        print("ran into stream error")
-        print(response_as_json)
-        return(0)
+    #if "data" not in response_as_json:
+    #    print("ran into stream error")
+    #    print(response_as_json)
+    #    return
     print(response_as_json)
     data = response_as_json["data"]
     print(data)
@@ -65,7 +65,7 @@ def get_rules():
     '''
     :return: the json dump of the response from the twitter stream
     '''
-    response = requests.get(TWITTER_STREAM_URL, auth=bearer_oauth)
+    response = requests.get(TWITTER_STREAM_RULES_URL, auth=bearer_oauth)
     if response.status_code != 200:
         raise Exception(
             "Cannot get rules (HTTP {}): {}".format(response.status_code, response.text)
@@ -84,7 +84,7 @@ def delete_all_rules(rules):
 
     ids = list(map(lambda rule: rule["id"], rules["data"]))
     payload = {"delete": {"ids": ids}}
-    response = requests.post(TWITTER_STREAM_URL, auth=bearer_oauth, json=payload)
+    response = requests.post(TWITTER_STREAM_RULES_URL, auth=bearer_oauth, json=payload)
     if response.status_code != 200:
         raise Exception(
             "Cannot delete rules (HTTP {}): {}".format(response.status_code, response.text)
@@ -95,11 +95,11 @@ def delete_all_rules(rules):
 def set_rules(delete):
     '''
     Sets rules for twitter stream to follow when monitoring
-    :param delete: ??? TODO: I have no idea what the purpose of this is but I just left it
+    :param delete:
     '''
     # You can adjust the rules if needed
     payload = {"add": TWITTER_STREAM_RULES}
-    response = requests.post(TWITTER_STREAM_URL, auth=bearer_oauth, json=payload)
+    response = requests.post(TWITTER_STREAM_RULES_URL, auth=bearer_oauth, json=payload)
     if response.status_code != 201:
         raise Exception(
             "Cannot add rules (HTTP {}): {}".format(response.status_code, response.text)
@@ -125,8 +125,11 @@ def get_stream(ruleset):
         if response_line:
             json_response = json.loads(response_line)
             tweet_id = parse_json_response(json_response)
-            link = TWITTER_ACCOUNT_URL_PREFIX + tweet_id
-            return(link)
+
+            #Error handling if no tweet was returned
+            if tweet_id:
+                link = TWITTER_ACCOUNT_URL_PREFIX + tweet_id
+                return link
 
 def initialize_twitter_stream():
     rules = get_rules()
@@ -154,7 +157,13 @@ async def post_twitter_link():
     channel = client.get_channel(id=TARGET_CHANNEL)
     ruleset = initialize_twitter_stream()
     while not client.is_closed():
-        link = get_stream(ruleset)
+        try:
+            link = get_stream(ruleset)
+        except Exception as e:
+            #Stream disconnect exception; print error and proceed through loop
+            link = None
+            print(e)
+        #requests.exceptions.ChunkedEncodingError: ('Connection broken: IncompleteRead(0 bytes read)', IncompleteRead(0 bytes read))
         if (link):
             await channel.send(link)
         await asyncio.sleep(60) # task runs every 60 seconds
