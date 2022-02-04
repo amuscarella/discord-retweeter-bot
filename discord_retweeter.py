@@ -4,12 +4,9 @@
 #######################################################################
 import asyncio
 import discord
-from discord.ext import commands
 from discord.ext.commands import bot
-import threading
 import requests
 import json
-import time
 #Local imports
 from config import *
 #######################################################################

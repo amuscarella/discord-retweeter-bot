@@ -128,6 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# token for discord bot
+# tokens for discord bot & twitter oauth
 token.txt
 twitter_token.txt
