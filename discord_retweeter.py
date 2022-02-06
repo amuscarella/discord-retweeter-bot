@@ -5,17 +5,24 @@
 # Authors: Christopher J. Clayton II (Github: ChristopherClayton) &
 #          Antonio D. Muscarella (Github: amuscarella) 
 #######################################################################
-import asyncio, requests, json
+import asyncio
+import json
+import os
+
 import discord
-from discord.ext.commands import bot
+import requests
+
 #Local imports
 from config import *
+
 #######################################################################
-# Discord Intents Declaration & Client Initialization
+# Configuration, Intents Declaration & Client Initialization
 #######################################################################
 #read token
 DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
 TWITTER_TOKEN = open(TWITTER_TOKEN_FNAME, 'r').readline()
+
+#print(os.environ["TEST_KEY"])
 
 #declare discord intents & initialize client
 intents = discord.Intents.default()
