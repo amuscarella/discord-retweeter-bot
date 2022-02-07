@@ -19,10 +19,10 @@ from config import *
 # Configuration, Intents Declaration & Client Initialization
 #######################################################################
 #read token
-DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
-TWITTER_TOKEN = open(TWITTER_TOKEN_FNAME, 'r').readline()
-
-#print(os.environ["TEST_KEY"])
+#DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
+DISCORD_TOKEN = os.environ[DISCORD_TOKEN_KEY] # TODO: os.environ will replace token files
+#TWITTER_TOKEN = open(TWITTER_TOKEN_FNAME, 'r').readline()
+TWITTER_TOKEN = os.environ[TWITTER_TOKEN_KEY] # TODO: change these so they are secrets
 
 #declare discord intents & initialize client
 intents = discord.Intents.default()
