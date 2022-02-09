@@ -22,7 +22,6 @@ ipywidgets==7.6.5
 keyring==23.5.0
 lockfile==0.12.2
 lxml==4.7.1
-MySQL-python==1.2.5
 nacl==0.0.0
 numpy==1.22.2
 ordereddict==1.1
