@@ -11,7 +11,6 @@ dl==0.1.0
 docutils==0.18.1
 epdb==0.15.1
 eventlet==0.33.0
-gevent==21.12.0
 greenlet==1.1.2
 HTMLParser==0.0.2
 idna_ssl==1.1.0
@@ -20,6 +19,7 @@ inotify==0.2.10
 ipdb==0.13.9
 ipython==8.0.1
 ipywidgets==7.6.5
+jnius==1.1.0
 keyring==23.5.0
 lockfile==0.12.2
 lxml==4.7.1
