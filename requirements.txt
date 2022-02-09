@@ -19,7 +19,6 @@ inotify==0.2.10
 ipdb==0.13.9
 ipython==8.0.1
 ipywidgets==7.6.5
-jnius==1.1.0
 keyring==23.5.0
 lockfile==0.12.2
 lxml==4.7.1
