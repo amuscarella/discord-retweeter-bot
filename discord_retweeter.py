@@ -8,6 +8,7 @@
 import asyncio
 import json
 import os
+import sys
 
 import discord
 import requests
@@ -20,7 +21,7 @@ from config import *
 #######################################################################
 #read token
 #DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
-DISCORD_TOKEN = os.environ[DISCORD_TOKEN_KEY] # TODO: os.environ will replace token files
+DISCORD_TOKEN = os.environ[DISCORD_TOKEN_KEY] # TODO: change these so they are secrets
 #TWITTER_TOKEN = open(TWITTER_TOKEN_FNAME, 'r').readline()
 TWITTER_TOKEN = os.environ[TWITTER_TOKEN_KEY] # TODO: change these so they are secrets
 
@@ -176,5 +177,6 @@ async def post_twitter_link():
 #######################################################################
 # Run App
 #######################################################################
+print(os.environ["TEST_KEY"])
 client.loop.create_task(post_twitter_link())
 client.run(DISCORD_TOKEN)
