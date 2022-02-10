@@ -1,19 +1,15 @@
 #######################################################################
 # config.py for discord retweeter
-# contains constants & strings for easy access/modification
+# contains strings, constants, & string keys that map to config vars on Heroku 
 # Authors: Christopher J. Clayton II (Github: ChristopherClayton) &
 #          Antonio D. Muscarella (Github: amuscarella)
 #######################################################################
 #Discord parameters
-DISCORD_TOKEN_FNAME = "token.txt" #filepath to Discord bot token
 DISCORD_TOKEN_KEY = "DISCORD_TOKEN" #config var key for Discord bot token
-TARGET_CHANNEL = 930511442006921257 #channel ID for bot to monitor
+DISCORD_CHANNEL_KEY = "TARGET_CHANNEL" #channel ID for bot to monitor
 
 #Twitter parameters
-TWITTER_TOKEN_FNAME = "twitter_token.txt" #filepath to Twitter API Bearer token
 TWITTER_TOKEN_KEY = "TWITTER_TOKEN" #config var key for Twitter API Bearer token
+TWITTER_ACCOUNT_NAME_KEY = "TWITTER_ACCOUNT_NAME" #config var key for the full name of the twitter account the bot should monitor
 TWITTER_STREAM_URL = "https://api.twitter.com/2/tweets/search/stream" #Twitter Stream URL from Twitter API 
 TWITTER_STREAM_RULES_URL = "https://api.twitter.com/2/tweets/search/stream/rules" #Twitter Stream rules URL from Twitter API
-TWITTER_ACCOUNT_NAME = "bstategames" #the full name of the twitter account the bot should monitor
-TWITTER_STREAM_RULES = [{"value": "-is:retweet from:{}".format(TWITTER_ACCOUNT_NAME)}] # the rules for the twitter stream
-TWITTER_ACCOUNT_URL_PREFIX = "https://twitter.com/{}/status/".format(TWITTER_ACCOUNT_NAME) #the url prefix to reference the statuses of the account the bot is monitoring
