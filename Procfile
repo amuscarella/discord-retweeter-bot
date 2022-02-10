@@ -1,1 +1,1 @@
-worker: python discord_retweeter.py runserver 0.0.0.0:5000
+web: gunicorn discord_retweeter.py
