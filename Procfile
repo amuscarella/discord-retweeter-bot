@@ -1,1 +1,1 @@
-web: gunicorn discord_retweeter --timeout 60
+worker: python discord_retweeter.py
