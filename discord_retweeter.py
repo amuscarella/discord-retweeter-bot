@@ -5,18 +5,27 @@
 # Authors: Christopher J. Clayton II (Github: ChristopherClayton) &
 #          Antonio D. Muscarella (Github: amuscarella) 
 #######################################################################
-import asyncio, requests, json
+import asyncio
+import json
+import os
 import discord
-from discord.ext import commands
-from discord.ext.commands import bot
+import requests
+
 #Local imports
 from config import *
+
 #######################################################################
-# Discord Intents Declaration & Client Initialization
+# Configuration, Intents Declaration & Client Initialization
 #######################################################################
 #read token
-DISCORD_TOKEN = open(DISCORD_TOKEN_FNAME, 'r').readline()
-TWITTER_TOKEN = open(TWITTER_TOKEN_FNAME, 'r').readline()
+DISCORD_TOKEN = os.environ[DISCORD_TOKEN_KEY]
+TWITTER_TOKEN = os.environ[TWITTER_TOKEN_KEY]
+
+#Other constants
+TARGET_DISCORD_CHANNEL_ID = int(os.environ[DISCORD_CHANNEL_KEY])
+TWITTER_ACCOUNT_NAME = os.environ[TWITTER_ACCOUNT_NAME_KEY]
+TWITTER_STREAM_RULES = [{"value": "-is:retweet from:{}".format(TWITTER_ACCOUNT_NAME)}] # the rules for the twitter stream
+TWITTER_ACCOUNT_URL_PREFIX = "https://twitter.com/{}/status/".format(TWITTER_ACCOUNT_NAME) #the url prefix to reference the statuses of the account the bot is monitoring
 
 #declare discord intents & initialize client
 intents = discord.Intents.default()
@@ -154,7 +163,7 @@ async def post_twitter_link():
     :return: None
     """
     await client.wait_until_ready()
-    channel = client.get_channel(id=TARGET_CHANNEL)
+    channel = client.get_channel(id=TARGET_DISCORD_CHANNEL_ID)
     ruleset = initialize_twitter_stream()
     while not client.is_closed():
         try:
@@ -163,7 +172,6 @@ async def post_twitter_link():
             #Stream disconnect exception; print error and proceed through loop
             link = None
             print(e)
-        #requests.exceptions.ChunkedEncodingError: ('Connection broken: IncompleteRead(0 bytes read)', IncompleteRead(0 bytes read))
         if (link):
             await channel.send(link)
         await asyncio.sleep(60) # task runs every 60 seconds
