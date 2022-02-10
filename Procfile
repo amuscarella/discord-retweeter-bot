@@ -1,1 +1,1 @@
-web: python discord_retweeter.py runserver 0.0.0.0:5000
+worker: python discord_retweeter.py --timeout 60
