@@ -1,1 +1,1 @@
-worker: python discord_retweeter.py
+worker: python discord_retweeter.py --timeout 60
