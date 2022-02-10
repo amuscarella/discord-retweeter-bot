@@ -178,6 +178,5 @@ async def post_twitter_link():
 #######################################################################
 # Run App
 #######################################################################
-print(os.environ["TEST_KEY"])
 client.loop.create_task(post_twitter_link())
 client.run(DISCORD_TOKEN)
