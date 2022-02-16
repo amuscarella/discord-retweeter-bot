@@ -3,7 +3,7 @@
 
 A bot for posting tweets from an account on Twitter to a Discord channel. 
 
-If you wish to deploying an instance of this bot, you need to complete the following steps:
+If you wish to deploy an instance of this bot, you need to complete the following steps:
 1. Create a Discord bot using the [Discord Developer Portal](https://discord.com/developers/applications)
 2. Create a Twitter auth token for a Twitter Stream using the [Twitter Developer API](https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/introduction)
 3. Invite your Discord bot to the server you wish to host it on.
